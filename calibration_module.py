@@ -395,49 +395,49 @@ class ConfigManager:
         head_tilt_threshold = results.head_tilt_threshold if results.head_tilt_threshold is not None else HEAD_TILT_THRESHOLD
 
         return f'''# --- Constantes e Configurações ---
-# Arquivo gerado automaticamente pela calibração
+    # Arquivo gerado automaticamente pela calibração
 
-# Índices dos landmarks faciais (Mediapipe Face Mesh)
-NOSE_TIP_INDEX = {NOSE_TIP_INDEX}
-LEFT_EYE_LANDMARKS_IDXS = {LEFT_EYE_LANDMARKS_IDXS}
-RIGHT_EYE_LANDMARKS_IDXS = {RIGHT_EYE_LANDMARKS_IDXS}
+    # Índices dos landmarks faciais (Mediapipe Face Mesh)
+    NOSE_TIP_INDEX = {NOSE_TIP_INDEX}
+    LEFT_EYE_LANDMARKS_IDXS = {LEFT_EYE_LANDMARKS_IDXS}
+    RIGHT_EYE_LANDMARKS_IDXS = {RIGHT_EYE_LANDMARKS_IDXS}
 
-# Qualidade vs Desempenho Mediapipe
-REFINE_LANDMARKS = {REFINE_LANDMARKS}
+    # Qualidade vs Desempenho Mediapipe
+    REFINE_LANDMARKS = {REFINE_LANDMARKS}
 
-# Limiares e Contadores para Detecção de Piscada
-EAR_THRESHOLD = {ear_threshold}
-BLINK_CONSECUTIVE_FRAMES = {BLINK_CONSECUTIVE_FRAMES}
+    # Limiares e Contadores para Detecção de Piscada
+    EAR_THRESHOLD = {ear_threshold}
+    BLINK_CONSECUTIVE_FRAMES = {BLINK_CONSECUTIVE_FRAMES}
 
-# Suavização do Movimento do Mouse
-SMOOTHING_FACTOR = {SMOOTHING_FACTOR}
+    # Suavização do Movimento do Mouse
+    SMOOTHING_FACTOR = {SMOOTHING_FACTOR}
 
-# Área de Controle do Rosto (Mapeamento Câmera -> Tela)
-CONTROL_AREA_X_MIN = {CONTROL_AREA_X_MIN}
-CONTROL_AREA_X_MAX = {CONTROL_AREA_X_MAX}
-CONTROL_AREA_Y_MIN = {CONTROL_AREA_Y_MIN}
-CONTROL_AREA_Y_MAX = {CONTROL_AREA_Y_MAX}
+    # Área de Controle do Rosto (Mapeamento Câmera -> Tela)
+    CONTROL_AREA_X_MIN = {CONTROL_AREA_X_MIN}
+    CONTROL_AREA_X_MAX = {CONTROL_AREA_X_MAX}
+    CONTROL_AREA_Y_MIN = {CONTROL_AREA_Y_MIN}
+    CONTROL_AREA_Y_MAX = {CONTROL_AREA_Y_MAX}
 
-# Inversão de Eixos (Opcional)
-INVERT_X_AXIS = {INVERT_X_AXIS}
-INVERT_Y_AXIS = {INVERT_Y_AXIS}
+    # Inversão de Eixos (Opcional)
+    INVERT_X_AXIS = {INVERT_X_AXIS}
+    INVERT_Y_AXIS = {INVERT_Y_AXIS}
 
-# Debounce para Cliques
-CLICK_DEBOUNCE_TIME = {CLICK_DEBOUNCE_TIME}
+    # Debounce para Cliques
+    CLICK_DEBOUNCE_TIME = {CLICK_DEBOUNCE_TIME}
 
-# Otimização de Desempenho (Opcional)
-PROCESS_EVERY_N_FRAMES = {PROCESS_EVERY_N_FRAMES}
+    # Otimização de Desempenho (Opcional)
+    PROCESS_EVERY_N_FRAMES = {PROCESS_EVERY_N_FRAMES}
 
-# --- Configurações para a funcionalidade Alt+Tab ---
-ALT_TAB_TRIGGER_BOTH_EYES_BLINK = {ALT_TAB_TRIGGER_BOTH_EYES_BLINK}
-ALT_TAB_DEBOUNCE_TIME = {ALT_TAB_DEBOUNCE_TIME}
+    # --- Configurações para a funcionalidade Alt+Tab ---
+    ALT_TAB_TRIGGER_BOTH_EYES_BLINK = {ALT_TAB_TRIGGER_BOTH_EYES_BLINK}
+    ALT_TAB_DEBOUNCE_TIME = {ALT_TAB_DEBOUNCE_TIME}
 
-# --- Configurações para a funcionalidade de Inclinação da Cabeça ---
-HEAD_TILT_THRESHOLD = {head_tilt_threshold}
-HEAD_TILT_DEBOUNCE_TIME = {HEAD_TILT_DEBOUNCE_TIME}
-HEAD_TILT_LEFT_TRIGGER_KEY = {repr(HEAD_TILT_LEFT_TRIGGER_KEY)}
-HEAD_TILT_RIGHT_TRIGGER_KEY = {repr(HEAD_TILT_RIGHT_TRIGGER_KEY)}
-'''
+    # --- Configurações para a funcionalidade de Inclinação da Cabeça ---
+    HEAD_TILT_THRESHOLD = {head_tilt_threshold}
+    HEAD_TILT_DEBOUNCE_TIME = {HEAD_TILT_DEBOUNCE_TIME}
+    HEAD_TILT_LEFT_TRIGGER_KEY = {repr(HEAD_TILT_LEFT_TRIGGER_KEY)}
+    HEAD_TILT_RIGHT_TRIGGER_KEY = {repr(HEAD_TILT_RIGHT_TRIGGER_KEY)}
+    '''
 
 
 class CalibrationModule:
@@ -540,104 +540,4 @@ if __name__ == "__main__":
 
         def process_frame(self, image):
             """Processa frame e retorna landmarks."""
-            image.flags.writeable = False
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results = self.face_mesh.process(image_rgb)
-            image.flags.writeable = True
-            return results
-
-        def calculate_ear(self, eye_landmarks, image_shape):
-            """Calcula Eye Aspect Ratio."""
-            try:
-                coords_points = np.array([
-                    (int(landmark.x * image_shape[1]), int(landmark.y * image_shape[0]))
-                    for landmark in eye_landmarks
-                ])
-                p1, p2, p3, p4, p5, p6 = coords_points
-
-                v1 = np.linalg.norm(p2 - p6)
-                v2 = np.linalg.norm(p3 - p5)
-                h = np.linalg.norm(p1 - p4)
-
-                if h == 0:
-                    return 0.0
-
-                ear = (v1 + v2) / (2.0 * h)
-                return ear
-            except Exception:
-                return 0.0
-
-        def get_head_pose(self, face_landmarks, image_shape):
-            """Calcula pose da cabeça."""
-            # Implementação simplificada
-            img_h, img_w = image_shape[:2]
-
-            # Pontos 3D modelo da face
-            model_points = np.array([
-                (0.0, 0.0, 0.0),  # Ponta do nariz
-                (0.0, -330.0, -65.0),  # Queixo
-                (-225.0, 170.0, -135.0),  # Canto esquerdo do olho esquerdo
-                (225.0, 170.0, -135.0),  # Canto direito do olho direito
-                (-150.0, -150.0, -125.0),  # Canto esquerdo da boca
-                (150.0, -150.0, -125.0)  # Canto direito da boca
-            ])
-
-            # Pontos 2D correspondentes na imagem
-            image_points = np.array([
-                (face_landmarks[1].x * img_w, face_landmarks[1].y * img_h),  # Ponta do nariz
-                (face_landmarks[152].x * img_w, face_landmarks[152].y * img_h),  # Queixo
-                (face_landmarks[33].x * img_w, face_landmarks[33].y * img_h),  # Olho esquerdo
-                (face_landmarks[263].x * img_w, face_landmarks[263].y * img_h),  # Olho direito
-                (face_landmarks[61].x * img_w, face_landmarks[61].y * img_h),  # Boca esquerda
-                (face_landmarks[291].x * img_w, face_landmarks[291].y * img_h)  # Boca direita
-            ], dtype="double")
-
-            # Parâmetros da câmera
-            focal_length = img_w
-            center = (img_w / 2, img_h / 2)
-            camera_matrix = np.array([
-                [focal_length, 0, center[0]],
-                [0, focal_length, center[1]],
-                [0, 0, 1]
-            ], dtype="double")
-
-            dist_coeffs = np.zeros((4, 1))
-
-            # Resolve PnP
-            success, rotation_vector, translation_vector = cv2.solvePnP(
-                model_points, image_points, camera_matrix, dist_coeffs
-            )
-
-            # Converte para matriz de rotação
-            rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
-
-            # Extrai ângulos de Euler
-            angles, _, _, _, _, _ = cv2.RQDecomp3x3(rotation_matrix)
-
-            yaw = angles[1] * 180 / np.pi
-            roll = angles[2] * 180 / np.pi
-
-            return yaw, roll
-
-
-    # Testa o sistema
-    try:
-        face_controller = MockFaceController()
-
-        # Configuração personalizada para teste
-        config = CalibrationConfig(
-            ear_collection_duration=5,  # Reduzido para teste
-            head_tilt_collection_duration=5
-        )
-
-        calibrator = CalibrationModule(face_controller, config=config)
-        results = calibrator.run_calibration()
-
-        print(f"\n=== Resultados da Calibração ===")
-        print(f"Sucesso: {results.success}")
-        print(f"Mensagem: {results.message}")
-        print(f"Limiar EAR: {results.ear_threshold}")
-        print(f"Limiar Inclinação: {results.head_tilt_threshold}")
-
-    except Exception as e:
-        logger.error(f"Erro no teste: {e}")
+            image.flags.writ

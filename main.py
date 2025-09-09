@@ -5,7 +5,8 @@ import time
 import math
 import numpy as np
 import threading
-from queue import Queue
+import logging
+
 
 from config import (
    NOSE_TIP_INDEX,
@@ -31,13 +32,18 @@ from config import (
    HEAD_TILT_RIGHT_TRIGGER_KEY
 )
 
+# Configuração global de logging
+logging.basicConfig(level=logging.INFO,
+                   format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # --- Otimização: Threading para Captura de Vídeo ---
 class ThreadedCamera:
    """Classe para capturar frames da câmera em uma thread separada."""
    def __init__(self, src=0):
        self.stream = cv2.VideoCapture(src)
        if not self.stream.isOpened():
-           print("Erro: Não foi possível abrir a câmera.")
+           logger.error("Erro: Não foi possível abrir a câmera.")
            self.grabbed = False
            return
 
@@ -103,7 +109,7 @@ class FaceController:
            ear = (vertical_dist1 + vertical_dist2) / (2.0 * horizontal_dist)
            return ear
        except Exception as e:
-           print(f"Erro ao calcular EAR: {e}")
+           logger.error(f"Erro ao calcular EAR: {e}")
            return 0.0
 
    def _calculate_distance(self, point1, point2):
@@ -158,7 +164,7 @@ class MouseController:
    """Gerencia o movimento e cliques do mouse."""
    def __init__(self):
        self.screen_width, self.screen_height = pyautogui.size()
-       print(f"Resolução da tela detectada: {self.screen_width}x{self.screen_height}")
+       logger.info(f"Resolução da tela detectada: {self.screen_width}x{self.screen_height}")
        self.prev_mouse_x, self.prev_mouse_y = pyautogui.position()
        self.last_left_click_time = 0
        self.last_right_click_time = 0
@@ -182,10 +188,10 @@ class MouseController:
            pyautogui.moveTo(int(current_mouse_x), int(current_mouse_y))
            self.prev_mouse_x, self.prev_mouse_y = current_mouse_x, current_mouse_y
        except pyautogui.FailSafeException:
-           print("FailSafe ativado (mouse movido para o canto). Encerrando...")
+           logger.warning("FailSafe ativado (mouse movido para o canto). Encerrando...")
            return False
        except Exception as e:
-           print(f"Erro ao mover o mouse: {e}")
+           logger.warning("FailSafe ativado (mouse movido para o canto). Encerrando...")
        return True
 
    def click(self, button_type, current_time):
@@ -194,20 +200,20 @@ class MouseController:
            if current_time - self.last_left_click_time > CLICK_DEBOUNCE_TIME:
                try:
                    pyautogui.click(button='left')
-                   print("Clique Esquerdo!")
+                   logger.warning("FailSafe ativado (mouse movido para o canto). Encerrando...")
                    self.last_left_click_time = current_time
                    return True
                except Exception as e:
-                   print(f"Erro ao clicar (esquerdo): {e}")
+                   logger.error(f"Erro ao clicar (esquerdo): {e}")
        elif button_type == 'right':
            if current_time - self.last_right_click_time > CLICK_DEBOUNCE_TIME:
                try:
                    pyautogui.click(button='right')
-                   print("Clique Direito!")
+                   logger.info("Clique Direito!")
                    self.last_right_click_time = current_time
                    return True
                except Exception as e:
-                   print(f"Erro ao clicar (direito): {e}")
+                   logger.error(f"Erro ao clicar (direito): {e}")
        return False
 
    def trigger_alt_tab(self, current_time):
@@ -215,11 +221,11 @@ class MouseController:
        if current_time - self.last_alt_tab_time > ALT_TAB_DEBOUNCE_TIME:
            try:
                pyautogui.hotkey('alt', 'tab')
-               print("Alt+Tab ativado!")
+               logger.info("Alt+Tab ativado!")
                self.last_alt_tab_time = current_time
                return True
            except Exception as e:
-               print(f"Erro ao ativar Alt+Tab: {e}")
+               logger.info("Alt+Tab ativado!")
        return False
 
    def trigger_head_tilt(self, direction, current_time):
@@ -228,14 +234,14 @@ class MouseController:
            try:
                if direction == 'left':
                    pyautogui.press(HEAD_TILT_LEFT_TRIGGER_KEY)
-                   print(f"Inclinação da cabeça para a esquerda: {HEAD_TILT_LEFT_TRIGGER_KEY} pressionado!")
+                   logger.info(f"Inclinação da cabeça para a esquerda: {HEAD_TILT_LEFT_TRIGGER_KEY} pressionado!")
                elif direction == 'right':
                    pyautogui.press(HEAD_TILT_RIGHT_TRIGGER_KEY)
-                   print(f"Inclinação da cabeça para a direita: {HEAD_TILT_RIGHT_TRIGGER_KEY} pressionado!")
+                   logger.info(f"Inclinação da cabeça para a direita: {HEAD_TILT_RIGHT_TRIGGER_KEY} pressionado!")
                self.last_head_tilt_time = current_time
                return True
            except Exception as e:
-               print(f"Erro ao ativar gatilho de inclinação da cabeça: {e}")
+               logger.error(f"Erro ao ativar gatilho de inclinação da cabeça: {e}")
        return False
 
    def _map_value(self, value, from_min, from_max, to_min, to_max):
@@ -267,25 +273,25 @@ class Application:
 
    def initialize_camera(self):
        """Inicializa a câmera e verifica sua disponibilidade."""
-       print("Abrindo a webcam...")
+       logger.info("Abrindo a webcam...")
        self.cap = ThreadedCamera(0).start()
        time.sleep(1.0)  # Aguarda a câmera inicializar
        frame = self.cap.read()
        if frame is None:
-           print("Erro: Não foi possível abrir a webcam. O controle do mouse não funcionará.")
+           logger.error("Erro: Não foi possível abrir a webcam. O controle do mouse não funcionará.")
            self.use_dummy_image = True
        else:
            self.image_height, self.image_width, _ = frame.shape
-           print(f"Resolução da câmera detectada: {self.image_width}x{self.image_height}")
+           logger.info(f"Resolução da câmera detectada: {self.image_width}x{self.image_height}")
 
    def run(self):
        """Loop principal da aplicação."""
-       print("--- Pisk&Click Iniciado ---")
-       print("Pressione 'q' para sair.")
-       print("Movimente o nariz para controlar o cursor.")
-       print("Pisque o olho esquerdo para clique esquerdo, olho direito para clique direito.")
-       print("Incline a cabeça para a esquerda/direita para acionar gatilhos.")
-       print(f"Ajustes Atuais: EAR Thresh={EAR_THRESHOLD}, Smooth={SMOOTHING_FACTOR}, Refine={REFINE_LANDMARKS}")
+       logger.info("--- Pisk&Click Iniciado ---")
+       logger.info("Pressione 'q' para sair.")
+       logger.info("Movimente o nariz para controlar o cursor.")
+       logger.info("Pisque o olho esquerdo para clique esquerdo, olho direito para clique direito.")
+       logger.info("Incline a cabeça para a esquerda/direita para acionar gatilhos.")
+       logger.info(f"Ajustes Atuais: EAR Thresh={EAR_THRESHOLD}, Smooth={SMOOTHING_FACTOR}, Refine={REFINE_LANDMARKS}")
 
        self.initialize_camera()
 
@@ -301,7 +307,7 @@ class Application:
                else:
                    image = self.cap.read()
                    if image is None:
-                       print("Ignorando frame vazio da câmera.")
+                       logger.warning("Ignorando frame vazio da câmera.")
                        continue
                    image = cv2.flip(image, 1)
 
@@ -354,13 +360,14 @@ class Application:
                            elif roll > HEAD_TILT_THRESHOLD:
                                self.mouse_controller.trigger_head_tilt('right', current_time)
                        except Exception as e:
-                           print(f"Erro ao calcular pose da cabeça: {e}")
+                           logger.error(f"Erro ao calcular pose da cabeça: {e}")
+
 
                    else:
                        self.face_detected = False
                        self.left_blink_counter = 0
                        self.right_blink_counter = 0
-                       print("Aviso: Rosto não detectado. O controle do mouse está pausado.")
+                       logger.warning("Aviso: Rosto não detectado. O controle do mouse está pausado.")
 
                if self.face_detected and nose_coords_norm and not self.use_dummy_image:
                    if not self.mouse_controller.move_mouse(nose_coords_norm, self.image_width, self.image_height):
@@ -388,13 +395,13 @@ class Application:
                )
 
                if cv2.waitKey(1) & 0xFF == ord('q'):
-                   print("Tecla 'q' pressionada. Encerrando...")
+                   logger.info("Tecla 'q' pressionada. Encerrando...")
                    break
 
        except KeyboardInterrupt:
-           print("\nInterrupção pelo usuário (Ctrl+C).")
+           logger.info("\nInterrupção pelo usuário (Ctrl+C).")
        except Exception as e:
-           print(f"Ocorreu um erro inesperado no loop principal: {e}")
+           logger.info("\nInterrupção pelo usuário (Ctrl+C).")
        finally:
            self.cleanup()
 
@@ -431,16 +438,16 @@ class Application:
        except cv2.error as e:
            if "display" in str(e).lower():
                if not self.use_dummy_image and self.frame_counter % 60 == 0:
-                   print("Aviso: Não foi possível exibir a janela (ambiente sem GUI?). Controle do mouse/clique ainda ativo.")
+                   logger.warning("Aviso: Não foi possível exibir a janela (ambiente sem GUI?). Controle do mouse/clique ainda ativo.")
            else:
-               print(f"Erro no cv2.imshow: {e}")
+               logger.error(f"Erro no cv2.imshow: {e}")
 
    def cleanup(self):
        """Libera os recursos utilizados pela aplicação."""
-       print("Encerrando aplicação...")
+       logger.info("Encerrando aplicação...")
        if not self.use_dummy_image and self.cap:
            self.cap.stop()
-           print("Webcam liberada.")
+           logger.info("Webcam liberada.")
        if 'cv2' in locals() and hasattr(cv2, 'destroyAllWindows'):
            try:
                cv2.destroyAllWindows()
@@ -448,8 +455,8 @@ class Application:
                pass
        if self.face_controller.face_mesh:
            self.face_controller.face_mesh.close()
-           print("Recursos do Mediapipe liberados.")
-       print("Aplicação Pisk&Click encerrada.")
+           logger.info("Recursos do Mediapipe liberados.")
+           logger.info("Aplicação Pisk&Click encerrada.")
 
 
 if __name__ == "__main__":

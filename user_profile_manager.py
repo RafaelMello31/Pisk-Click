@@ -1,5 +1,8 @@
 import json
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UserProfileManager:
    """Gerencia a criação, salvamento e carregamento de perfis de usuário."""
@@ -17,48 +20,48 @@ class UserProfileManager:
        """Cria um novo perfil de usuário com configurações iniciais."""
        profile_path = self._get_profile_path(profile_name)
        if os.path.exists(profile_path):
-           print(f"Aviso: Perfil '{profile_name}' já existe. Sobrescrevendo...")
+           logger.warning(f"Aviso: Perfil '{profile_name}' já existe. Sobrescrevendo...")
 
        config_to_save = initial_config if initial_config is not None else {}
        try:
            with open(profile_path, "w") as f:
                json.dump(config_to_save, f, indent=4)
-           print(f"Perfil '{profile_name}' criado com sucesso em {profile_path}")
+           logger.info(f"Perfil '{profile_name}' criado com sucesso em {profile_path}")
            return True
        except Exception as e:
-           print(f"Erro ao criar perfil '{profile_name}': {e}")
+           logger.error(f"Erro ao criar perfil '{profile_name}': {e}")
            return False
 
    def save_profile_config(self, profile_name, config_data):
        """Salva as configurações para um perfil existente."""
        profile_path = self._get_profile_path(profile_name)
        if not os.path.exists(profile_path):
-           print(f"Erro: Perfil '{profile_name}' não encontrado para salvar.")
+           logger.error(f"Erro: Perfil '{profile_name}' não encontrado para salvar.")
            return False
 
        try:
            with open(profile_path, "w") as f:
                json.dump(config_data, f, indent=4)
-           print(f"Configurações salvas para o perfil '{profile_name}' em {profile_path}")
+           logger.info(f"Configurações salvas para o perfil '{profile_name}' em {profile_path}")
            return True
        except Exception as e:
-           print(f"Erro ao salvar configurações para o perfil '{profile_name}': {e}")
+           logger.error(f"Erro ao salvar configurações para o perfil '{profile_name}': {e}")
            return False
 
    def load_profile_config(self, profile_name):
        """Carrega as configurações de um perfil existente."""
        profile_path = self._get_profile_path(profile_name)
        if not os.path.exists(profile_path):
-           print(f"Erro: Perfil '{profile_name}' não encontrado para carregar.")
+           logger.error(f"Erro: Perfil '{profile_name}' não encontrado para carregar.")
            return None
 
        try:
            with open(profile_path, "r") as f:
                config_data = json.load(f)
-           print(f"Configurações carregadas do perfil '{profile_name}'")
+           logger.info(f"Configurações carregadas do perfil '{profile_name}'")
            return config_data
        except Exception as e:
-           print(f"Erro ao carregar configurações do perfil '{profile_name}': {e}")
+           logger.error(f"Erro ao carregar configurações do perfil '{profile_name}': {e}")
            return None
 
    def list_profiles(self):
@@ -74,17 +77,19 @@ class UserProfileManager:
        """Deleta um perfil de usuário."""
        profile_path = self._get_profile_path(profile_name)
        if not os.path.exists(profile_path):
-           print(f"Aviso: Perfil '{profile_name}' não encontrado para deletar.")
+           logger.warning(f"Aviso: Perfil '{profile_name}' não encontrado para deletar.")
            return False
        try:
            os.remove(profile_path)
-           print(f"Perfil '{profile_name}' deletado com sucesso.")
+           logger.info(f"Perfil '{profile_name}' deletado com sucesso.")
            return True
        except Exception as e:
-           print(f"Erro ao deletar perfil '{profile_name}': {e}")
+           logger.error(f"Erro ao deletar perfil '{profile_name}': {e}")
            return False
 
 if __name__ == "__main__":
+   logging.basicConfig(level=logging.INFO,
+                       format='%(asctime)s - %(levelname)s - %(message)s')
    # Exemplo de uso
    manager = UserProfileManager("test_profiles")
 
@@ -92,12 +97,12 @@ if __name__ == "__main__":
    manager.create_profile("usuario_teste", {"EAR_THRESHOLD": 0.22, "SMOOTHING_FACTOR": 0.4})
 
    # Listar perfis
-   print("Perfis existentes:", manager.list_profiles())
+   logger.info(f"Perfis existentes: {manager.list_profiles()}")
 
    # Carregar um perfil
    loaded_config = manager.load_profile_config("usuario_teste")
    if loaded_config:
-       print("Configurações do usuario_teste:", loaded_config)
+       logger.info(f"Configurações do usuario_teste: {loaded_config}")
 
    # Salvar configurações atualizadas para um perfil
    updated_config = {"EAR_THRESHOLD": 0.25, "SMOOTHING_FACTOR": 0.5, "NEW_SETTING": True}
@@ -106,8 +111,8 @@ if __name__ == "__main__":
    # Carregar novamente para verificar
    loaded_config = manager.load_profile_config("usuario_teste")
    if loaded_config:
-       print("Configurações atualizadas do usuario_teste:", loaded_config)
+       logger.info(f"Configurações atualizadas do usuario_teste: {loaded_config}")
 
    # Deletar um perfil
    manager.delete_profile("usuario_teste")
-   print("Perfis existentes após deleção:", manager.list_profiles())
+   logger.info(f"Perfis existentes após deleção: {manager.list_profiles()}")

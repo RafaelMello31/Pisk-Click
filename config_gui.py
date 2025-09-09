@@ -5,6 +5,7 @@ import os
 import logging
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
+from user_profile_manager import UserProfileManager
 
 # --------------------------------------------------------------------------- #
 # Logging                                                                     #
@@ -63,8 +64,8 @@ class ConfigDefaults:
    def get_default(cls, key: str) -> Any:
        """Obtém valor padrão com fallback seguro."""
        try:
-           from config import *  # noqa
-           return globals().get(key, cls.DEFAULTS.get(key))
+           import config  # noqa
+           return getattr(config, key, cls.DEFAULTS.get(key))
        except ImportError:
            return cls.DEFAULTS.get(key)
 
@@ -277,62 +278,6 @@ class ConfigSections:
 
 
 # --------------------------------------------------------------------------- #
-# Profile Manager                                                             #
-# --------------------------------------------------------------------------- #
-class ProfileManager:
-   """Gerenciador simplificado de perfis."""
-
-   def __init__(self, profiles_dir: str = "profiles"):
-       self.profiles_dir = profiles_dir
-       os.makedirs(profiles_dir, exist_ok=True)
-
-   def list_profiles(self) -> list:
-       try:
-           return [
-               f[:-5] for f in os.listdir(self.profiles_dir) if f.endswith(".json")
-           ] or ["default"]
-       except Exception as e:
-           logger.error(f"Erro ao listar perfis: {e}")
-           return ["default"]
-
-   def create_profile(self, name: str, config: Dict[str, Any]) -> bool:
-       try:
-           with open(self._profile_path(name), "w") as f:
-               json.dump(config, f, indent=2)
-           return True
-       except Exception as e:
-           logger.error(f"Erro ao criar perfil {name}: {e}")
-           return False
-
-   def save_profile_config(self, name: str, config: Dict[str, Any]) -> bool:
-       return self.create_profile(name, config)
-
-   def load_profile_config(self, name: str) -> Optional[Dict[str, Any]]:
-       try:
-           with open(self._profile_path(name), "r") as f:
-               return json.load(f)
-       except FileNotFoundError:
-           return None
-       except Exception as e:
-           logger.error(f"Erro ao carregar perfil {name}: {e}")
-           return None
-
-   def delete_profile(self, name: str) -> bool:
-       try:
-           path = self._profile_path(name)
-           if os.path.exists(path):
-               os.remove(path)
-               return True
-           return False
-       except Exception as e:
-           logger.error(f"Erro ao excluir perfil {name}: {e}")
-           return False
-
-   def _profile_path(self, name: str) -> str:
-       return os.path.join(self.profiles_dir, f"{name}.json")
-
-
-# --------------------------------------------------------------------------- #
 # ToolTip                                                                     #
 # --------------------------------------------------------------------------- #
 class ToolTip:
@@ -382,7 +327,7 @@ class ConfigGUI:
        self.root = tk.Tk()
        self.setup_window()
 
-       self.profile_manager = ProfileManager()
+       self.profile_manager = UserProfileManager()
        self.current_profile = "default"
        self.config_vars: Dict[str, tk.Variable] = {}
        self.tooltips = []

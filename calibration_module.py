@@ -10,8 +10,7 @@ from typing import List, Tuple, Optional, Dict, Any
 from dataclasses import dataclass
 from contextlib import contextmanager
 
-# Configurar logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Logger do módulo
 logger = logging.getLogger(__name__)
 
 # Importa as configurações padrão do config.py original para ter valores de fallback
@@ -356,26 +355,26 @@ class ConfigManager:
     def _get_default_config(self) -> Dict[str, Any]:
         """Retorna configuração padrão."""
         try:
-            from config import *
+            import config
             return {
-                "REFINE_LANDMARKS": REFINE_LANDMARKS,
-                "EAR_THRESHOLD": EAR_THRESHOLD,
-                "BLINK_CONSECUTIVE_FRAMES": BLINK_CONSECUTIVE_FRAMES,
-                "SMOOTHING_FACTOR": SMOOTHING_FACTOR,
-                "CONTROL_AREA_X_MIN": CONTROL_AREA_X_MIN,
-                "CONTROL_AREA_X_MAX": CONTROL_AREA_X_MAX,
-                "CONTROL_AREA_Y_MIN": CONTROL_AREA_Y_MIN,
-                "CONTROL_AREA_Y_MAX": CONTROL_AREA_Y_MAX,
-                "INVERT_X_AXIS": INVERT_X_AXIS,
-                "INVERT_Y_AXIS": INVERT_Y_AXIS,
-                "CLICK_DEBOUNCE_TIME": CLICK_DEBOUNCE_TIME,
-                "PROCESS_EVERY_N_FRAMES": PROCESS_EVERY_N_FRAMES,
-                "ALT_TAB_TRIGGER_BOTH_EYES_BLINK": ALT_TAB_TRIGGER_BOTH_EYES_BLINK,
-                "ALT_TAB_DEBOUNCE_TIME": ALT_TAB_DEBOUNCE_TIME,
-                "HEAD_TILT_THRESHOLD": HEAD_TILT_THRESHOLD,
-                "HEAD_TILT_DEBOUNCE_TIME": HEAD_TILT_DEBOUNCE_TIME,
-                "HEAD_TILT_LEFT_TRIGGER_KEY": HEAD_TILT_LEFT_TRIGGER_KEY,
-                "HEAD_TILT_RIGHT_TRIGGER_KEY": HEAD_TILT_RIGHT_TRIGGER_KEY,
+                "REFINE_LANDMARKS": config.REFINE_LANDMARKS,
+                "EAR_THRESHOLD": config.EAR_THRESHOLD,
+                "BLINK_CONSECUTIVE_FRAMES": config.BLINK_CONSECUTIVE_FRAMES,
+                "SMOOTHING_FACTOR": config.SMOOTHING_FACTOR,
+                "CONTROL_AREA_X_MIN": config.CONTROL_AREA_X_MIN,
+                "CONTROL_AREA_X_MAX": config.CONTROL_AREA_X_MAX,
+                "CONTROL_AREA_Y_MIN": config.CONTROL_AREA_Y_MIN,
+                "CONTROL_AREA_Y_MAX": config.CONTROL_AREA_Y_MAX,
+                "INVERT_X_AXIS": config.INVERT_X_AXIS,
+                "INVERT_Y_AXIS": config.INVERT_Y_AXIS,
+                "CLICK_DEBOUNCE_TIME": config.CLICK_DEBOUNCE_TIME,
+                "PROCESS_EVERY_N_FRAMES": config.PROCESS_EVERY_N_FRAMES,
+                "ALT_TAB_TRIGGER_BOTH_EYES_BLINK": config.ALT_TAB_TRIGGER_BOTH_EYES_BLINK,
+                "ALT_TAB_DEBOUNCE_TIME": config.ALT_TAB_DEBOUNCE_TIME,
+                "HEAD_TILT_THRESHOLD": config.HEAD_TILT_THRESHOLD,
+                "HEAD_TILT_DEBOUNCE_TIME": config.HEAD_TILT_DEBOUNCE_TIME,
+                "HEAD_TILT_LEFT_TRIGGER_KEY": config.HEAD_TILT_LEFT_TRIGGER_KEY,
+                "HEAD_TILT_RIGHT_TRIGGER_KEY": config.HEAD_TILT_RIGHT_TRIGGER_KEY,
             }
         except ImportError:
             # Configuração mínima se não conseguir importar
@@ -388,55 +387,55 @@ class ConfigManager:
     def _generate_config_content(self, results: CalibrationResults) -> str:
         """Gera o conteúdo do arquivo config.py."""
         # Importa valores atuais
-        from config import *
+        import config
 
         # Atualiza com resultados da calibração
-        ear_threshold = results.ear_threshold if results.ear_threshold is not None else EAR_THRESHOLD
-        head_tilt_threshold = results.head_tilt_threshold if results.head_tilt_threshold is not None else HEAD_TILT_THRESHOLD
+        ear_threshold = results.ear_threshold if results.ear_threshold is not None else config.EAR_THRESHOLD
+        head_tilt_threshold = results.head_tilt_threshold if results.head_tilt_threshold is not None else config.HEAD_TILT_THRESHOLD
 
         return f'''# --- Constantes e Configurações ---
     # Arquivo gerado automaticamente pela calibração
 
     # Índices dos landmarks faciais (Mediapipe Face Mesh)
-    NOSE_TIP_INDEX = {NOSE_TIP_INDEX}
-    LEFT_EYE_LANDMARKS_IDXS = {LEFT_EYE_LANDMARKS_IDXS}
-    RIGHT_EYE_LANDMARKS_IDXS = {RIGHT_EYE_LANDMARKS_IDXS}
+    NOSE_TIP_INDEX = {config.NOSE_TIP_INDEX}
+    LEFT_EYE_LANDMARKS_IDXS = {config.LEFT_EYE_LANDMARKS_IDXS}
+    RIGHT_EYE_LANDMARKS_IDXS = {config.RIGHT_EYE_LANDMARKS_IDXS}
 
     # Qualidade vs Desempenho Mediapipe
-    REFINE_LANDMARKS = {REFINE_LANDMARKS}
+    REFINE_LANDMARKS = {config.REFINE_LANDMARKS}
 
     # Limiares e Contadores para Detecção de Piscada
     EAR_THRESHOLD = {ear_threshold}
-    BLINK_CONSECUTIVE_FRAMES = {BLINK_CONSECUTIVE_FRAMES}
+    BLINK_CONSECUTIVE_FRAMES = {config.BLINK_CONSECUTIVE_FRAMES}
 
     # Suavização do Movimento do Mouse
-    SMOOTHING_FACTOR = {SMOOTHING_FACTOR}
+    SMOOTHING_FACTOR = {config.SMOOTHING_FACTOR}
 
     # Área de Controle do Rosto (Mapeamento Câmera -> Tela)
-    CONTROL_AREA_X_MIN = {CONTROL_AREA_X_MIN}
-    CONTROL_AREA_X_MAX = {CONTROL_AREA_X_MAX}
-    CONTROL_AREA_Y_MIN = {CONTROL_AREA_Y_MIN}
-    CONTROL_AREA_Y_MAX = {CONTROL_AREA_Y_MAX}
+    CONTROL_AREA_X_MIN = {config.CONTROL_AREA_X_MIN}
+    CONTROL_AREA_X_MAX = {config.CONTROL_AREA_X_MAX}
+    CONTROL_AREA_Y_MIN = {config.CONTROL_AREA_Y_MIN}
+    CONTROL_AREA_Y_MAX = {config.CONTROL_AREA_Y_MAX}
 
     # Inversão de Eixos (Opcional)
-    INVERT_X_AXIS = {INVERT_X_AXIS}
-    INVERT_Y_AXIS = {INVERT_Y_AXIS}
+    INVERT_X_AXIS = {config.INVERT_X_AXIS}
+    INVERT_Y_AXIS = {config.INVERT_Y_AXIS}
 
     # Debounce para Cliques
-    CLICK_DEBOUNCE_TIME = {CLICK_DEBOUNCE_TIME}
+    CLICK_DEBOUNCE_TIME = {config.CLICK_DEBOUNCE_TIME}
 
     # Otimização de Desempenho (Opcional)
-    PROCESS_EVERY_N_FRAMES = {PROCESS_EVERY_N_FRAMES}
+     PROCESS_EVERY_N_FRAMES = {config.PROCESS_EVERY_N_FRAMES}
 
     # --- Configurações para a funcionalidade Alt+Tab ---
-    ALT_TAB_TRIGGER_BOTH_EYES_BLINK = {ALT_TAB_TRIGGER_BOTH_EYES_BLINK}
-    ALT_TAB_DEBOUNCE_TIME = {ALT_TAB_DEBOUNCE_TIME}
+    ALT_TAB_TRIGGER_BOTH_EYES_BLINK = {config.ALT_TAB_TRIGGER_BOTH_EYES_BLINK}
+    ALT_TAB_DEBOUNCE_TIME = {config.ALT_TAB_DEBOUNCE_TIME}
 
     # --- Configurações para a funcionalidade de Inclinação da Cabeça ---
     HEAD_TILT_THRESHOLD = {head_tilt_threshold}
-    HEAD_TILT_DEBOUNCE_TIME = {HEAD_TILT_DEBOUNCE_TIME}
-    HEAD_TILT_LEFT_TRIGGER_KEY = {repr(HEAD_TILT_LEFT_TRIGGER_KEY)}
-    HEAD_TILT_RIGHT_TRIGGER_KEY = {repr(HEAD_TILT_RIGHT_TRIGGER_KEY)}
+    HEAD_TILT_DEBOUNCE_TIME = {config.HEAD_TILT_DEBOUNCE_TIME}
+    HEAD_TILT_LEFT_TRIGGER_KEY = {repr(config.HEAD_TILT_LEFT_TRIGGER_KEY)}
+    HEAD_TILT_RIGHT_TRIGGER_KEY = {repr(config.HEAD_TILT_RIGHT_TRIGGER_KEY)}
     '''
 
 
@@ -486,14 +485,14 @@ class CalibrationModule:
         logger.info("--- Calibração de Piscada ---")
 
         # Coleta dados com olhos abertos
-        print("Mantenha os olhos bem abertos e olhe para a câmera.")
+        logger.info("Mantenha os olhos bem abertos e olhe para a câmera.")
         time.sleep(3)
         open_left, open_right = self.data_collector.collect_ear_data(
             5, "Mantenha os olhos abertos"
         )
 
         # Coleta dados piscando normalmente
-        print("\nAgora pisque normalmente.")
+        logger.info("\nAgora pisque normalmente.")
         time.sleep(2)
         blink_left, blink_right = self.data_collector.collect_ear_data(
             self.config.ear_collection_duration, "Pisque normalmente"
@@ -511,7 +510,7 @@ class CalibrationModule:
         """Calibra o limiar de inclinação da cabeça."""
         logger.info("--- Calibração de Inclinação da Cabeça ---")
 
-        print("Incline a cabeça para a esquerda e direita repetidamente.")
+        logger.info("Incline a cabeça para a esquerda e direita repetidamente.")
         time.sleep(3)
 
         tilt_data = self.data_collector.collect_head_tilt_data(
@@ -540,4 +539,17 @@ if __name__ == "__main__":
 
         def process_frame(self, image):
             """Processa frame e retorna landmarks."""
-            image.flags.writ
+            image.flags.writeable = False
+            return self.face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+
+        def close(self):
+            """Libera recursos do FaceMesh."""
+            self.face_mesh.close()
+
+        controller = MockFaceController()
+        try:
+            dummy_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+            results = controller.process_frame(dummy_frame)
+            print("Processamento realizado:", results is not None)
+        finally:
+            controller.close()

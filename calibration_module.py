@@ -21,24 +21,20 @@ try:
         RIGHT_EYE_LANDMARKS_IDXS,
         REFINE_LANDMARKS,
         EAR_THRESHOLD,
-        HEAD_TILT_THRESHOLD
     )
 except ImportError:
     logger.warning("config.py não encontrado. Usando valores padrão.")
-    # Define valores padrão se config.py não puder ser importado (primeira execução)
     NOSE_TIP_INDEX = 1
     LEFT_EYE_LANDMARKS_IDXS = [33, 160, 158, 133, 153, 144]
     RIGHT_EYE_LANDMARKS_IDXS = [362, 385, 387, 263, 380, 373]
     REFINE_LANDMARKS = False
     EAR_THRESHOLD = 0.25
-    HEAD_TILT_THRESHOLD = 15.0
 
 
 @dataclass
 class CalibrationResults:
     """Estrutura para armazenar resultados da calibração."""
     ear_threshold: Optional[float] = None
-    head_tilt_threshold: Optional[float] = None
     success: bool = False
     message: str = ""
 
@@ -47,14 +43,10 @@ class CalibrationResults:
 class CalibrationConfig:
     """Configurações para o processo de calibração."""
     ear_collection_duration: int = 10
-    head_tilt_collection_duration: int = 10
     min_data_points: int = 50
     ear_percentile_threshold: float = 5.0  # Percentil usado para detectar piscadas
-    head_tilt_percentile_threshold: float = 75.0
     ear_min_threshold: float = 0.10
     ear_max_threshold: float = 0.30
-    head_tilt_min_threshold: float = 3.0
-    head_tilt_max_threshold: float = 25.0
 
 
 class CameraManager:
@@ -137,49 +129,13 @@ class DataCollector:
         logger.info(f"Coletados {len(left_ears)} pontos para olho esquerdo, {len(right_ears)} para direito")
         return left_ears, right_ears
 
-    def collect_head_tilt_data(self, duration: int) -> List[float]:
-        """Coleta dados de inclinação da cabeça."""
-        logger.info("Coletando dados de inclinação da cabeça")
-        rolls = []
-        start_time = time.time()
-
-        with self.camera_manager.get_camera() as cap:
-            while time.time() - start_time < duration:
-                success, image = cap.read()
-                if not success:
-                    continue
-
-                image = cv2.flip(image, 1)
-                results = self.face_controller.process_frame(image)
-
-                if results and results.multi_face_landmarks:
-                    face_landmarks = results.multi_face_landmarks[0].landmark
-                    try:
-                        yaw, roll = self.face_controller.get_head_pose(face_landmarks, image.shape)
-                        rolls.append(roll)
-                    except Exception as e:
-                        logger.warning(f"Erro ao obter pose da cabeça: {e}")
-
-                # Interface visual
-                remaining_time = int(duration - (time.time() - start_time))
-                instruction = "Incline a cabeça para os lados"
-                self._draw_countdown(image, f"Inclinação: {remaining_time}s", instruction)
-                cv2.imshow("Calibração Inclinação", image)
-
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    logger.info("Calibração interrompida pelo usuário")
-                    break
-
-        logger.info(f"Coletados {len(rolls)} pontos de inclinação")
-        return rolls
-
     def _calculate_ear(self, face_landmarks, eye_indices: List[int]) -> float:
         """Calcula o Eye Aspect Ratio para um olho."""
         try:
             eye_landmarks = [face_landmarks[i] for i in eye_indices]
             return self.face_controller.calculate_ear(
                 eye_landmarks,
-                (self.camera_manager.image_height, self.camera_manager.image_width)
+                (self.camera_manager.image_height, self.camera_manager.image_width),
             )
         except Exception as e:
             logger.debug(f"Erro ao calcular EAR: {e}")
@@ -209,9 +165,9 @@ class CalibrationAlgorithm:
 
     @staticmethod
     def calibrate_ear_threshold(
-            open_eyes_data: List[float],
-            blinking_data: List[float],
-            config: CalibrationConfig
+        open_eyes_data: List[float],
+        blinking_data: List[float],
+        config: CalibrationConfig
     ) -> Optional[float]:
         """Calcula o limiar EAR ideal usando análise estatística."""
         all_data = open_eyes_data + blinking_data
@@ -241,39 +197,6 @@ class CalibrationAlgorithm:
                         min(threshold, config.ear_max_threshold))
 
         logger.info(f"Limiar EAR calculado: {threshold:.3f}")
-        return threshold
-
-    @staticmethod
-    def calibrate_head_tilt_threshold(
-            tilt_data: List[float],
-            config: CalibrationConfig
-    ) -> Optional[float]:
-        """Calcula o limiar de inclinação da cabeça."""
-        if len(tilt_data) < config.min_data_points:
-            logger.warning(f"Dados insuficientes para calibração de inclinação: {len(tilt_data)}")
-            return None
-
-        # Remove valores próximos de zero (cabeça reta)
-        significant_tilts = [abs(t) for t in tilt_data if abs(t) > 1.0]
-
-        if not significant_tilts:
-            logger.warning("Nenhuma inclinação significativa detectada")
-            return None
-
-        # Remove outliers
-        clean_data = CalibrationAlgorithm._remove_outliers(significant_tilts)
-
-        if not clean_data:
-            clean_data = significant_tilts
-
-        # Usa percentil como limiar
-        threshold = np.percentile(clean_data, config.head_tilt_percentile_threshold)
-
-        # Aplica limites de segurança
-        threshold = max(config.head_tilt_min_threshold,
-                        min(threshold, config.head_tilt_max_threshold))
-
-        logger.info(f"Limiar de inclinação calculado: {threshold:.3f}°")
         return threshold
 
     @staticmethod
@@ -329,8 +252,6 @@ class ConfigManager:
 
         if results.ear_threshold is not None:
             current_config["EAR_THRESHOLD"] = results.ear_threshold
-        if results.head_tilt_threshold is not None:
-            current_config["HEAD_TILT_THRESHOLD"] = results.head_tilt_threshold
 
         self.profile_manager.save_profile_config(profile_name, current_config)
 
@@ -369,18 +290,11 @@ class ConfigManager:
                 "INVERT_Y_AXIS": config.INVERT_Y_AXIS,
                 "CLICK_DEBOUNCE_TIME": config.CLICK_DEBOUNCE_TIME,
                 "PROCESS_EVERY_N_FRAMES": config.PROCESS_EVERY_N_FRAMES,
-                "ALT_TAB_TRIGGER_BOTH_EYES_BLINK": config.ALT_TAB_TRIGGER_BOTH_EYES_BLINK,
-                "ALT_TAB_DEBOUNCE_TIME": config.ALT_TAB_DEBOUNCE_TIME,
-                "HEAD_TILT_THRESHOLD": config.HEAD_TILT_THRESHOLD,
-                "HEAD_TILT_DEBOUNCE_TIME": config.HEAD_TILT_DEBOUNCE_TIME,
-                "HEAD_TILT_LEFT_TRIGGER_KEY": config.HEAD_TILT_LEFT_TRIGGER_KEY,
-                "HEAD_TILT_RIGHT_TRIGGER_KEY": config.HEAD_TILT_RIGHT_TRIGGER_KEY,
             }
         except ImportError:
             # Configuração mínima se não conseguir importar
             return {
                 "EAR_THRESHOLD": 0.25,
-                "HEAD_TILT_THRESHOLD": 15.0,
                 "REFINE_LANDMARKS": False
             }
 
@@ -391,52 +305,41 @@ class ConfigManager:
 
         # Atualiza com resultados da calibração
         ear_threshold = results.ear_threshold if results.ear_threshold is not None else config.EAR_THRESHOLD
-        head_tilt_threshold = results.head_tilt_threshold if results.head_tilt_threshold is not None else config.HEAD_TILT_THRESHOLD
 
         return f'''# --- Constantes e Configurações ---
-    # Arquivo gerado automaticamente pela calibração
+# Arquivo gerado automaticamente pela calibração
 
-    # Índices dos landmarks faciais (Mediapipe Face Mesh)
-    NOSE_TIP_INDEX = {config.NOSE_TIP_INDEX}
-    LEFT_EYE_LANDMARKS_IDXS = {config.LEFT_EYE_LANDMARKS_IDXS}
-    RIGHT_EYE_LANDMARKS_IDXS = {config.RIGHT_EYE_LANDMARKS_IDXS}
+# Índices dos landmarks faciais (Mediapipe Face Mesh)
+NOSE_TIP_INDEX = {config.NOSE_TIP_INDEX}
+LEFT_EYE_LANDMARKS_IDXS = {config.LEFT_EYE_LANDMARKS_IDXS}
+RIGHT_EYE_LANDMARKS_IDXS = {config.RIGHT_EYE_LANDMARKS_IDXS}
 
-    # Qualidade vs Desempenho Mediapipe
-    REFINE_LANDMARKS = {config.REFINE_LANDMARKS}
+# Qualidade vs Desempenho Mediapipe
+REFINE_LANDMARKS = {config.REFINE_LANDMARKS}
 
-    # Limiares e Contadores para Detecção de Piscada
-    EAR_THRESHOLD = {ear_threshold}
-    BLINK_CONSECUTIVE_FRAMES = {config.BLINK_CONSECUTIVE_FRAMES}
+# Limiares e Contadores para Detecção de Piscada
+EAR_THRESHOLD = {ear_threshold}
+BLINK_CONSECUTIVE_FRAMES = {config.BLINK_CONSECUTIVE_FRAMES}
 
-    # Suavização do Movimento do Mouse
-    SMOOTHING_FACTOR = {config.SMOOTHING_FACTOR}
+# Suavização do Movimento do Mouse
+SMOOTHING_FACTOR = {config.SMOOTHING_FACTOR}
 
-    # Área de Controle do Rosto (Mapeamento Câmera -> Tela)
-    CONTROL_AREA_X_MIN = {config.CONTROL_AREA_X_MIN}
-    CONTROL_AREA_X_MAX = {config.CONTROL_AREA_X_MAX}
-    CONTROL_AREA_Y_MIN = {config.CONTROL_AREA_Y_MIN}
-    CONTROL_AREA_Y_MAX = {config.CONTROL_AREA_Y_MAX}
+# Área de Controle do Rosto (Mapeamento Câmera -> Tela)
+CONTROL_AREA_X_MIN = {config.CONTROL_AREA_X_MIN}
+CONTROL_AREA_X_MAX = {config.CONTROL_AREA_X_MAX}
+CONTROL_AREA_Y_MIN = {config.CONTROL_AREA_Y_MIN}
+CONTROL_AREA_Y_MAX = {config.CONTROL_AREA_Y_MAX}
 
-    # Inversão de Eixos (Opcional)
-    INVERT_X_AXIS = {config.INVERT_X_AXIS}
-    INVERT_Y_AXIS = {config.INVERT_Y_AXIS}
+# Inversão de Eixos (Opcional)
+INVERT_X_AXIS = {config.INVERT_X_AXIS}
+INVERT_Y_AXIS = {config.INVERT_Y_AXIS}
 
-    # Debounce para Cliques
-    CLICK_DEBOUNCE_TIME = {config.CLICK_DEBOUNCE_TIME}
+# Debounce para Cliques
+CLICK_DEBOUNCE_TIME = {config.CLICK_DEBOUNCE_TIME}
 
-    # Otimização de Desempenho (Opcional)
-     PROCESS_EVERY_N_FRAMES = {config.PROCESS_EVERY_N_FRAMES}
-
-    # --- Configurações para a funcionalidade Alt+Tab ---
-    ALT_TAB_TRIGGER_BOTH_EYES_BLINK = {config.ALT_TAB_TRIGGER_BOTH_EYES_BLINK}
-    ALT_TAB_DEBOUNCE_TIME = {config.ALT_TAB_DEBOUNCE_TIME}
-
-    # --- Configurações para a funcionalidade de Inclinação da Cabeça ---
-    HEAD_TILT_THRESHOLD = {head_tilt_threshold}
-    HEAD_TILT_DEBOUNCE_TIME = {config.HEAD_TILT_DEBOUNCE_TIME}
-    HEAD_TILT_LEFT_TRIGGER_KEY = {repr(config.HEAD_TILT_LEFT_TRIGGER_KEY)}
-    HEAD_TILT_RIGHT_TRIGGER_KEY = {repr(config.HEAD_TILT_RIGHT_TRIGGER_KEY)}
-    '''
+# Otimização de Desempenho (Opcional)
+PROCESS_EVERY_N_FRAMES = {config.PROCESS_EVERY_N_FRAMES}
+'''
 
 
 class CalibrationModule:
@@ -449,7 +352,7 @@ class CalibrationModule:
         self.data_collector = DataCollector(face_controller, self.camera_manager)
         self.config_manager = ConfigManager(profile_manager)
 
-    def run_calibration(self, calibrate_ear: bool = True, calibrate_head_tilt: bool = True) -> CalibrationResults:
+    def run_calibration(self, calibrate_ear: bool = True) -> CalibrationResults:
         """Executa o processo completo de calibração."""
         logger.info("=== Iniciando Calibração Automática ===")
 
@@ -459,11 +362,7 @@ class CalibrationModule:
             if calibrate_ear:
                 results.ear_threshold = self._calibrate_ear()
 
-            if calibrate_head_tilt:
-                results.head_tilt_threshold = self._calibrate_head_tilt()
-
-            # Considera bem-sucedida se pelo menos uma calibração funcionou
-            results.success = (results.ear_threshold is not None) or (results.head_tilt_threshold is not None)
+            results.success = results.ear_threshold is not None
 
             if results.success:
                 results.message = "Calibração concluída com sucesso"
@@ -506,21 +405,6 @@ class CalibrationModule:
             all_open, all_blink, self.config
         )
 
-    def _calibrate_head_tilt(self) -> Optional[float]:
-        """Calibra o limiar de inclinação da cabeça."""
-        logger.info("--- Calibração de Inclinação da Cabeça ---")
-
-        logger.info("Incline a cabeça para a esquerda e direita repetidamente.")
-        time.sleep(3)
-
-        tilt_data = self.data_collector.collect_head_tilt_data(
-            self.config.head_tilt_collection_duration
-        )
-
-        return CalibrationAlgorithm.calibrate_head_tilt_threshold(
-            tilt_data, self.config
-        )
-
 
 # Exemplo de uso
 if __name__ == "__main__":
@@ -542,14 +426,27 @@ if __name__ == "__main__":
             image.flags.writeable = False
             return self.face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
+        def calculate_ear(self, eye_landmarks, image_shape):
+            """Calcula EAR usando a mesma lógica da aplicação principal."""
+            coords_points = np.array(
+                [(int(landmark.x * image_shape[1]), int(landmark.y * image_shape[0])) for landmark in eye_landmarks]
+            )
+            p1, p2, p3, p4, p5, p6 = coords_points
+            vertical_dist1 = math.dist(p2, p6)
+            vertical_dist2 = math.dist(p3, p5)
+            horizontal_dist = math.dist(p1, p4)
+            if horizontal_dist == 0:
+                return 0.0
+            return (vertical_dist1 + vertical_dist2) / (2.0 * horizontal_dist)
+
         def close(self):
             """Libera recursos do FaceMesh."""
             self.face_mesh.close()
 
-        controller = MockFaceController()
-        try:
-            dummy_frame = np.zeros((480, 640, 3), dtype=np.uint8)
-            results = controller.process_frame(dummy_frame)
-            print("Processamento realizado:", results is not None)
-        finally:
-            controller.close()
+    controller = MockFaceController()
+    try:
+        dummy_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        results = controller.process_frame(dummy_frame)
+        print("Processamento realizado:", results is not None)
+    finally:
+        controller.close()

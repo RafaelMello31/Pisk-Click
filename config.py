@@ -30,13 +30,3 @@ CLICK_DEBOUNCE_TIME = 0.5
 
 # Otimização de Desempenho (Opcional)
 PROCESS_EVERY_N_FRAMES = 1
-
-# --- Configurações para a funcionalidade Alt+Tab ---
-ALT_TAB_TRIGGER_BOTH_EYES_BLINK = True
-ALT_TAB_DEBOUNCE_TIME = 1.0
-
-# --- Configurações para a funcionalidade de Inclinação da Cabeça ---
-HEAD_TILT_THRESHOLD = 20.0
-HEAD_TILT_DEBOUNCE_TIME = 0.5
-HEAD_TILT_LEFT_TRIGGER_KEY = 'left'
-HEAD_TILT_RIGHT_TRIGGER_KEY = 'right'

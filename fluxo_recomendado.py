@@ -12,12 +12,12 @@ Este fluxo garante que todas as configurações estejam otimizadas
 antes da execução principal do sistema.
 """
 
-import os
-import sys
-import subprocess
-import time
 import logging
+import os
 from pathlib import Path
+import subprocess
+import sys
+import time
 
 # Configurar logging
 logging.basicConfig(

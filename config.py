@@ -9,7 +9,7 @@ RIGHT_EYE_LANDMARKS_IDXS = [33, 160, 158, 133, 153, 144]
 REFINE_LANDMARKS = True
 
 # Limiares e Contadores para Detecção de Piscada
-EAR_THRESHOLD = 0.21
+EAR_THRESHOLD = 0.2
 BLINK_CONSECUTIVE_FRAMES = 1
 
 # Suavização do Movimento do Mouse
@@ -26,7 +26,7 @@ INVERT_X_AXIS = False
 INVERT_Y_AXIS = False
 
 # Debounce para Cliques
-CLICK_DEBOUNCE_TIME = 0.2
+CLICK_DEBOUNCE_TIME = 0.25
 
 # Otimização de Desempenho (Opcional)
 PROCESS_EVERY_N_FRAMES = 1

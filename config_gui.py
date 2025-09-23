@@ -14,6 +14,174 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------- #
+# Tema e Cores Personalizadas                                                #
+# --------------------------------------------------------------------------- #
+class ModernTheme:
+    """Classe para definir o tema moderno da aplicação."""
+    
+    # Paleta de cores principal
+    PRIMARY = "#2E3440"      # Azul escuro elegante
+    SECONDARY = "#3B4252"    # Azul médio
+    ACCENT = "#5E81AC"       # Azul claro
+    SUCCESS = "#A3BE8C"      # Verde suave
+    WARNING = "#EBCB8B"      # Amarelo suave
+    ERROR = "#BF616A"        # Vermelho suave
+    
+    # Cores de fundo com gradientes
+    BG_PRIMARY = "#ECEFF4"   # Branco gelo
+    BG_SECONDARY = "#E5E9F0" # Cinza muito claro
+    BG_CARD = "#FFFFFF"      # Branco puro
+    BG_GRADIENT_START = "#ECEFF4"  # Início do gradiente de fundo
+    BG_GRADIENT_END = "#E5E9F0"    # Fim do gradiente de fundo
+    
+    # Cores de texto com variações
+    TEXT_PRIMARY = "#2E3440" # Texto principal
+    TEXT_SECONDARY = "#4C566A" # Texto secundário
+    TEXT_MUTED = "#6B7280"   # Texto esmaecido
+    TEXT_HIGHLIGHT = "#FFFFFF" # Texto destacado
+    
+    # Gradientes melhorados
+    GRADIENT_START = "#667eea"
+    GRADIENT_END = "#764ba2"
+    GRADIENT_ACCENT_START = "#5E81AC"
+    GRADIENT_ACCENT_END = "#81A1C1"
+    
+    # Cores de brilho e sombra
+    GLOW_COLOR = "#5E81AC33"    # Brilho sutil
+    SHADOW_COLOR = "#2E344080"  # Sombra suave
+    BORDER_LIGHT = "#D8DEE9"    # Borda clara
+    BORDER_DARK = "#4C566A"     # Borda escura
+    
+    @classmethod
+    def configure_style(cls):
+        """Configura o estilo ttk com o tema moderno."""
+        style = ttk.Style()
+        
+        # Configurar tema base
+        style.theme_use('clam')
+        
+        # Configurar cores gerais com gradientes sutis
+        style.configure('TLabel', 
+                       background=cls.BG_PRIMARY,
+                       foreground=cls.TEXT_PRIMARY,
+                       font=('Arial', 10))
+        
+        style.configure('TFrame',
+                       background=cls.BG_PRIMARY,
+                       relief='flat')
+        
+        # Configurar estilos com gradientes
+        style.configure('Gradient.TFrame',
+                       background=cls.BG_GRADIENT_START,
+                       relief='flat')
+        
+        style.configure('Card.TFrame',
+                       background=cls.BG_CARD,
+                       relief='solid',
+                       borderwidth=1,
+                       bordercolor=cls.BORDER_LIGHT)
+        
+        # Configurar LabelFrame com estilo moderno e sombras
+        style.configure('Modern.TLabelframe',
+                       background=cls.BG_CARD,
+                       borderwidth=2,
+                       relief='solid',
+                       bordercolor=cls.ACCENT,
+                       lightcolor=cls.GLOW_COLOR,
+                       darkcolor=cls.SHADOW_COLOR)
+        
+        style.configure('Modern.TLabelframe.Label',
+                       background=cls.BG_CARD,
+                       foreground=cls.ACCENT,
+                       font=('Arial', 11, 'bold'))
+        
+        # Configurar botões modernos com gradientes
+        style.configure('Modern.TButton',
+                       background=cls.ACCENT,
+                       foreground='white',
+                       borderwidth=0,
+                       focuscolor='none',
+                       font=('Arial', 10, 'bold'),
+                       padding=(20, 10))
+        
+        style.map('Modern.TButton',
+                 background=[('active', cls.GRADIENT_ACCENT_START),
+                           ('pressed', cls.GRADIENT_ACCENT_END),
+                           ('!active', cls.ACCENT)],
+                 relief=[('pressed', 'sunken'),
+                        ('!pressed', 'raised')])
+        
+        # Configurar Entry (campos de texto) com efeitos visuais
+        style.configure('Modern.TEntry',
+                       fieldbackground=cls.BG_CARD,
+                       background=cls.BG_CARD,
+                       foreground=cls.TEXT_PRIMARY,
+                       borderwidth=2,
+                       relief='solid',
+                       insertcolor=cls.ACCENT,
+                       font=('Arial', 10),
+                       padding=(8, 6))
+        
+        style.map('Modern.TEntry',
+                 focuscolor=[('focus', cls.ACCENT)],
+                 bordercolor=[('focus', cls.ACCENT),
+                            ('!focus', cls.BG_SECONDARY)],
+                 lightcolor=[('focus', cls.GLOW_COLOR),
+                           ('!focus', cls.BG_CARD)])
+        
+        # Configurar Combobox com efeitos visuais
+        style.configure('Modern.TCombobox',
+                       fieldbackground=cls.BG_CARD,
+                       background=cls.ACCENT,
+                       foreground=cls.TEXT_PRIMARY,
+                       borderwidth=2,
+                       relief='solid',
+                       bordercolor=cls.ACCENT)
+        
+        style.map('Modern.TCombobox',
+                 bordercolor=[('focus', cls.ACCENT),
+                            ('!focus', cls.BORDER_LIGHT)],
+                 lightcolor=[('focus', cls.GLOW_COLOR),
+                           ('!focus', cls.BG_CARD)])
+        
+        # Configurar Spinbox com configuração simplificada e efetiva
+        style.configure('Modern.TSpinbox',
+                       fieldbackground=cls.BG_CARD,
+                       background='#ffffff',
+                       foreground=cls.TEXT_PRIMARY,
+                       borderwidth=1,
+                       relief='solid',
+                       bordercolor=cls.ACCENT,
+                       arrowcolor='#000000',
+                       arrowsize=16,
+                       padding=(8, 4))
+        
+        # Mapear cores das setas diretamente no Spinbox principal
+        style.map('Modern.TSpinbox',
+                 bordercolor=[('focus', cls.ACCENT),
+                            ('!focus', cls.BORDER_LIGHT)],
+                 arrowcolor=[('active', '#ff0000'),  # Vermelho para teste de visibilidade
+                           ('pressed', '#ff0000'),
+                           ('!active', '#000000')])
+        
+        # Remover configurações duplicadas - usando apenas a configuração principal do Spinbox
+        
+        # Configurar Checkbutton com efeitos hover
+        style.configure('Modern.TCheckbutton',
+                       background=cls.BG_CARD,
+                       foreground=cls.TEXT_PRIMARY,
+                       focuscolor='none',
+                       font=('Arial', 10))
+        
+        style.map('Modern.TCheckbutton',
+                 background=[('active', cls.BG_SECONDARY),
+                           ('!active', cls.BG_CARD)],
+                 foreground=[('active', cls.ACCENT),
+                           ('!active', cls.TEXT_PRIMARY)])
+        
+        return style
+
+# --------------------------------------------------------------------------- #
 # Metadados de Campos                                                         #
 # --------------------------------------------------------------------------- #
 @dataclass
@@ -212,43 +380,140 @@ class ConfigSections:
 
 
 # --------------------------------------------------------------------------- #
-# ToolTip                                                                     #
+# ToolTip Moderno                                                             #
 # --------------------------------------------------------------------------- #
-class ToolTip:
-    """Classe para adicionar tooltips aos widgets."""
+class ModernToolTip:
+    """Tooltip moderno com design elegante e animações suaves."""
 
-    def __init__(self, widget, text):
+    def __init__(self, widget, text, delay=500):
         self.widget = widget
         self.text = text
+        self.delay = delay
         self.tooltip_window = None
+        self.show_timer = None
+        self.fade_job = None
+        
+        # Bind eventos
         self.widget.bind("<Enter>", self.on_enter)
         self.widget.bind("<Leave>", self.on_leave)
+        self.widget.bind("<Motion>", self.on_motion)
 
     def on_enter(self, event=None):
-        x, y, _, _ = (
-            self.widget.bbox("insert") if hasattr(self.widget, "bbox") else (0, 0, 0, 0)
-        )
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 25
+        """Inicia timer para mostrar tooltip."""
+        self.cancel_timer()
+        self.show_timer = self.widget.after(self.delay, self.show_tooltip)
 
+    def on_leave(self, event=None):
+        """Esconde tooltip e cancela timer."""
+        self.cancel_timer()
+        self.hide_tooltip()
+
+    def cancel_timer(self):
+        """Cancela timer pendente."""
+        if self.show_timer:
+            self.widget.after_cancel(self.show_timer)
+            self.show_timer = None
+        if self.fade_job:
+            self.widget.after_cancel(self.fade_job)
+            self.fade_job = None
+
+    def show_tooltip(self, event=None):
+        """Mostra o tooltip com design melhorado."""
+        if self.tooltip_window or not self.text:
+            return
+        
+        # Calcular posição otimizada
+        x = self.widget.winfo_rootx() + self.widget.winfo_width() // 2
+        y = self.widget.winfo_rooty() - 40
+        
+        # Ajustar se sair da tela
+        screen_width = self.widget.winfo_screenwidth()
+        screen_height = self.widget.winfo_screenheight()
+        
+        if x + 200 > screen_width:
+            x = screen_width - 220
+        if y < 0:
+            y = self.widget.winfo_rooty() + self.widget.winfo_height() + 10
+
+        # Criar janela do tooltip
         self.tooltip_window = tk.Toplevel(self.widget)
         self.tooltip_window.wm_overrideredirect(True)
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
-
-        label = ttk.Label(
+        self.tooltip_window.attributes('-alpha', 0.0)
+        self.tooltip_window.attributes('-topmost', True)
+        
+        # Frame principal com bordas melhoradas
+        main_frame = tk.Frame(
             self.tooltip_window,
-            text=self.text,
-            background="lightyellow",
-            relief="solid",
-            borderwidth=1,
-            font=("Arial", 8),
+            bg=ModernTheme.PRIMARY,
+            relief='flat',
+            bd=0
         )
-        label.pack()
+        main_frame.pack(padx=3, pady=3)
+        
+        # Frame interno com gradiente simulado
+        content_frame = tk.Frame(
+            main_frame,
+            bg=ModernTheme.BG_CARD,
+            relief='flat',
+            bd=1
+        )
+        content_frame.pack(padx=1, pady=1)
+        
+        # Ícone informativo
+        icon_label = tk.Label(
+            content_frame,
+            text="💡",
+            bg=ModernTheme.BG_CARD,
+            font=('Segoe UI', 10),
+            padx=5,
+            pady=2
+        )
+        icon_label.pack(side=tk.LEFT, anchor="nw")
+        
+        # Label com texto estilizado
+        text_label = tk.Label(
+            content_frame,
+            text=self.text,
+            bg=ModernTheme.BG_CARD,
+            fg=ModernTheme.TEXT_PRIMARY,
+            font=('Segoe UI', 9),
+            padx=8,
+            pady=8,
+            justify='left',
+            wraplength=280,
+            anchor="w"
+        )
+        text_label.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        # Efeito de fade-in suave
+        self.fade_in()
 
-    def on_leave(self, event=None):
+    def fade_in(self, alpha=0.0):
+        """Efeito de fade-in suave para o tooltip."""
+        if self.tooltip_window and alpha < 0.95:
+            alpha += 0.08
+            try:
+                self.tooltip_window.attributes('-alpha', alpha)
+                self.fade_job = self.widget.after(15, lambda: self.fade_in(alpha))
+            except tk.TclError:
+                pass
+
+    def hide_tooltip(self, event=None):
+        """Esconde o tooltip."""
         if self.tooltip_window:
-            self.tooltip_window.destroy()
+            try:
+                self.tooltip_window.destroy()
+            except tk.TclError:
+                pass
             self.tooltip_window = None
+
+    def on_motion(self, event=None):
+        """Atualiza posição do tooltip se necessário."""
+        pass
+
+# Manter compatibilidade com código existente
+ToolTip = ModernToolTip
 
 
 # --------------------------------------------------------------------------- #
@@ -260,7 +525,10 @@ class ConfigGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.setup_window()
-
+        
+        # Configurar tema moderno
+        self.style = ModernTheme.configure_style()
+        
         self.profile_manager = UserProfileManager()
         self.current_profile = "default"
         self.config_vars: Dict[str, tk.Variable] = {}
@@ -273,10 +541,22 @@ class ConfigGUI:
 
     # --- Janela ------------------------------------------------------------- #
     def setup_window(self):
-        self.root.title("Pisk&Click - Configurações")
-        self.root.geometry("800x900")
+        """Configura a janela principal com design moderno."""
+        self.root.title("🎯 Pisk&Click - Configurações Avançadas")
+        self.root.geometry("1000x800")
+        self.root.configure(bg=ModernTheme.BG_PRIMARY)
+        
+        # Configurar fonte padrão do sistema
+        self.root.option_add('*Font', 'Arial 10')
+        
+        # Configurar comportamento da janela
+        self.root.minsize(900, 600)
         self.root.resizable(True, True)
-        ttk.Style().theme_use("clam")
+        
+        # Configurar grid weights para responsividade
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        
         self.center_window()
 
     def center_window(self):
@@ -296,124 +576,372 @@ class ConfigGUI:
         self.create_action_buttons()
 
     def setup_scrollable_frame(self):
-        main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        self.canvas = tk.Canvas(main_frame)
-        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas)
-
+        """Cria um frame com scroll para o conteúdo."""
+        # Container principal com padding responsivo
+        main_container = tk.Frame(self.root, bg=ModernTheme.BG_PRIMARY)
+        main_container.pack(fill=tk.BOTH, expand=True, padx=30, pady=25)
+        
+        # Configurar grid weights para responsividade
+        main_container.grid_rowconfigure(0, weight=1)
+        main_container.grid_columnconfigure(0, weight=1)
+        
+        # Canvas para scroll com bordas suaves
+        self.canvas = tk.Canvas(
+            main_container, 
+            bg=ModernTheme.BG_PRIMARY,
+            highlightthickness=0,
+            relief="flat",
+            bd=0
+        )
+        
+        # Scrollbar estilizada
+        scrollbar = ttk.Scrollbar(
+            main_container, 
+            orient="vertical", 
+            command=self.canvas.yview
+        )
+        
+        # Frame scrollable com padding interno
+        self.scrollable_frame = tk.Frame(self.canvas, bg=ModernTheme.BG_PRIMARY)
+        
+        # Configurar scroll
         self.scrollable_frame.bind(
             "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")),
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         )
-
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        
+        # Configurar redimensionamento do canvas
+        def configure_canvas(event):
+            canvas_width = event.width
+            self.canvas.itemconfig(canvas_window, width=canvas_width)
+        
+        self.canvas.bind('<Configure>', configure_canvas)
+        
+        # Criar janela no canvas
+        canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=scrollbar.set)
-
-        self.canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        
+        # Layout com grid para melhor controle
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        # Bind mouse wheel para scroll suave
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        self.scrollable_frame.bind("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind("<Button-4>", self._on_mousewheel)
+        self.canvas.bind("<Button-5>", self._on_mousewheel)
 
     def _on_mousewheel(self, event):
         self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def create_title(self):
-        title_label = ttk.Label(
-            self.scrollable_frame,
-            text="Configurações do Pisk&Click",
-            font=("Arial", 18, "bold"),
+        # Container para o cabeçalho
+        header_frame = tk.Frame(self.scrollable_frame, bg=ModernTheme.BG_PRIMARY)
+        header_frame.pack(fill=tk.X, pady=(0, 30))
+        
+        # Título principal com gradiente simulado
+        title_frame = tk.Frame(header_frame, bg=ModernTheme.ACCENT, height=80)
+        title_frame.pack(fill=tk.X, pady=(0, 10))
+        title_frame.pack_propagate(False)
+        
+        title_label = tk.Label(
+            title_frame,
+            text="🎯 Configurações Avançadas",
+            font=("Arial", 24, "bold"),
+            bg=ModernTheme.ACCENT,
+            fg="white"
         )
-        title_label.pack(pady=(0, 20))
+        title_label.pack(expand=True)
+        
+        # Subtítulo
+        subtitle_label = tk.Label(
+            header_frame,
+            text="Personalize sua experiência com o Pisk&Click",
+            font=("Arial", 12),
+            bg=ModernTheme.BG_PRIMARY,
+            fg=ModernTheme.TEXT_SECONDARY
+        )
+        subtitle_label.pack(pady=(0, 10))
+        
+        # Linha decorativa
+        separator = tk.Frame(header_frame, height=2, bg=ModernTheme.ACCENT)
+        separator.pack(fill=tk.X, pady=(0, 10))
 
     def create_profile_section(self):
-        frame = ttk.LabelFrame(self.scrollable_frame, text="Gerenciamento de Perfis", padding=15)
-        frame.pack(fill=tk.X, pady=10)
-
-        ttk.Label(frame, text="Perfil Atual:", font=("Arial", 10, "bold")).grid(
-            row=0, column=0, padx=5, pady=5, sticky="w"
+        # Frame principal com estilo moderno
+        frame = ttk.LabelFrame(
+            self.scrollable_frame, 
+            text="👤 Gerenciamento de Perfis", 
+            style="Modern.TLabelframe",
+            padding=20
         )
+        frame.pack(fill=tk.X, pady=(0, 20))
+
+        # Seção de seleção de perfil
+        profile_select_frame = tk.Frame(frame, bg=ModernTheme.BG_CARD)
+        profile_select_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        tk.Label(
+            profile_select_frame, 
+            text="Perfil Atual:", 
+            font=("Arial", 11, "bold"),
+            bg=ModernTheme.BG_CARD,
+            fg=ModernTheme.TEXT_PRIMARY
+        ).grid(row=0, column=0, padx=(0, 10), pady=5, sticky="w")
 
         self.profile_name_var = tk.StringVar(value=self.current_profile)
         self.profile_dropdown = ttk.Combobox(
-            frame, textvariable=self.profile_name_var, state="readonly", width=20
+            profile_select_frame, 
+            textvariable=self.profile_name_var, 
+            state="readonly", 
+            width=25,
+            style="Modern.TCombobox",
+            font=("Arial", 10)
         )
         self.profile_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         self.profile_dropdown.bind("<<ComboboxSelected>>", self.on_profile_selected)
 
-        ttk.Button(frame, text="Novo Perfil", command=self.create_new_profile).grid(
-            row=0, column=2, padx=5, pady=5
-        )
+        ttk.Button(
+            profile_select_frame, 
+            text="➕ Novo", 
+            command=self.create_new_profile,
+            style="Modern.TButton"
+        ).grid(row=0, column=2, padx=(10, 0), pady=5)
 
-        button_frame = ttk.Frame(frame)
-        button_frame.grid(row=1, column=0, columnspan=3, pady=10, sticky="ew")
-        ttk.Button(button_frame, text="Salvar Perfil", command=self.save_current_profile).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Carregar Perfil", command=self.load_selected_profile).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Excluir Perfil", command=self.delete_selected_profile).pack(side=tk.LEFT, padx=5)
+        # Seção de botões de ação
+        button_frame = tk.Frame(frame, bg=ModernTheme.BG_CARD)
+        button_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        # Botões com ícones e estilos modernos
+        buttons_data = [
+            ("💾 Salvar", self.save_current_profile, ModernTheme.SUCCESS),
+            ("📂 Carregar", self.load_selected_profile, ModernTheme.ACCENT),
+            ("🗑️ Excluir", self.delete_selected_profile, ModernTheme.ERROR)
+        ]
+        
+        for i, (text, command, color) in enumerate(buttons_data):
+            btn = tk.Button(
+                button_frame,
+                text=text,
+                command=command,
+                bg=color,
+                fg="white",
+                font=("Arial", 10, "bold"),
+                relief="flat",
+                padx=20,
+                pady=8,
+                cursor="hand2"
+            )
+            btn.pack(side=tk.LEFT, padx=(0, 10) if i < len(buttons_data)-1 else 0)
+            
+            # Efeito hover
+            def on_enter(e, button=btn, original_color=color):
+                button.configure(bg=self._darken_color(original_color))
+            def on_leave(e, button=btn, original_color=color):
+                button.configure(bg=original_color)
+            
+            btn.bind("<Enter>", on_enter)
+            btn.bind("<Leave>", on_leave)
 
-        frame.grid_columnconfigure(1, weight=1)
+        profile_select_frame.grid_columnconfigure(1, weight=1)
+        
+    def _darken_color(self, color):
+        """Escurece uma cor hex para efeito hover."""
+        color = color.lstrip('#')
+        rgb = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+        darkened = tuple(max(0, c - 30) for c in rgb)
+        return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
 
     def create_config_sections(self):
         for section_name, fields in ConfigSections.SECTIONS.items():
             self.create_section(self.scrollable_frame, section_name, fields)
 
     def create_section(self, parent, title: str, config_fields: list):
-        section_frame = ttk.LabelFrame(parent, text=title, padding=15)
-        section_frame.pack(fill=tk.X, pady=10)
+        # Ícones melhorados para cada seção com símbolos mais expressivos
+        section_icons = {
+            "Detecção Facial": "👁️",
+            "Controle do Mouse": "🎯",
+            "Temporização": "⏱️",
+            "Performance": "⚡",
+            "Configurações de Clique": "🎯",
+            "Configurações de Teclado": "⌨️",
+            "Configurações de Interface": "🎨",
+            "Configurações Avançadas": "⚙️",
+            "Configurações de Sistema": "💻",
+            "Configurações de Performance": "⚡",
+            "Configurações de Áudio": "🔊",
+            "Configurações de Rede": "🌐",
+            "Configurações de Segurança": "🔒",
+            "Configurações Gerais": "📋"
+        }
+        
+        icon = section_icons.get(title, "⚙️")
+        
+        # Frame da seção com estilo moderno e espaçamento melhorado
+        section_frame = ttk.LabelFrame(
+            parent, 
+            text=f"  {icon} {title}  ", 
+            style="Modern.TLabelframe",
+            padding=(25, 20)
+        )
+        section_frame.pack(fill=tk.X, padx=15, pady=12)
+        
+        # Configurar grid weights para responsividade
+        section_frame.grid_columnconfigure(0, weight=1)
 
-        for field in config_fields:
-            row_frame = ttk.Frame(section_frame)
-            row_frame.pack(fill=tk.X, pady=8)
+        for i, field in enumerate(config_fields):
+            # Container para cada campo com espaçamento otimizado
+            row_frame = tk.Frame(section_frame, bg=ModernTheme.BG_CARD)
+            row_frame.pack(fill=tk.X, pady=10, padx=5)
+            
+            # Configurar grid weights para campos
+            row_frame.grid_columnconfigure(0, weight=1)
+            
+            # Frame para label com melhor alinhamento
+            label_frame = tk.Frame(row_frame, bg=ModernTheme.BG_CARD)
+            label_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-            label = ttk.Label(row_frame, text=field.label, width=45, font=("Arial", 9))
-            label.pack(side=tk.LEFT, anchor="w")
+            # Label estilizado com wraplength para responsividade
+            label = tk.Label(
+                label_frame, 
+                text=field.label, 
+                font=("Arial", 10),
+                bg=ModernTheme.BG_CARD,
+                fg=ModernTheme.TEXT_PRIMARY,
+                anchor="w",
+                justify="left",
+                wraplength=400
+            )
+            label.pack(side=tk.LEFT, anchor="w", padx=(0, 15))
+            
             if field.tooltip:
                 ToolTip(label, field.tooltip)
 
-            widget = self.create_input_widget(row_frame, field)
+            # Widget de entrada estilizado
+            widget_frame = tk.Frame(row_frame, bg=ModernTheme.BG_CARD)
+            widget_frame.pack(side=tk.RIGHT, anchor="e")
+            
+            widget = self.create_input_widget(widget_frame, field)
             widget.pack(side=tk.RIGHT, anchor="e")
+            
             if field.tooltip:
                 ToolTip(widget, field.tooltip)
+                
+            # Linha separadora sutil entre campos (exceto o último)
+            if i < len(config_fields) - 1:
+                separator = tk.Frame(
+                    section_frame, 
+                    height=1, 
+                    bg=ModernTheme.BG_SECONDARY
+                )
+                separator.pack(fill=tk.X, pady=(8, 0), padx=10)
 
     def create_input_widget(self, parent, field: ConfigField):
+        # Container para o widget com melhor espaçamento
+        widget_container = tk.Frame(parent, bg=ModernTheme.BG_CARD)
+        
         if field.field_type == "boolean":
             var = tk.BooleanVar(value=field.default_value)
-            widget = ttk.Checkbutton(parent, variable=var)
+            widget = ttk.Checkbutton(
+                widget_container, 
+                variable=var,
+                style="Modern.TCheckbutton"
+            )
+            widget.pack(padx=8, pady=4)
+            
         elif field.field_type == "int":
             var = tk.IntVar(value=field.default_value)
             widget = ttk.Spinbox(
-                parent,
+                widget_container,
                 from_=field.min_value if field.min_value is not None else 1,
                 to=field.max_value if field.max_value is not None else 100,
                 textvariable=var,
-                width=15,
+                width=18,
+                style="Modern.TSpinbox",
+                font=("Arial", 10),
                 validate="key",
                 validatecommand=(self.root.register(lambda P: P.isdigit() or P == ""), "%P"),
             )
+            widget.pack(padx=8, pady=4)
+            
         elif field.field_type == "float":
             var = tk.DoubleVar(value=field.default_value)
             widget = ttk.Spinbox(
-                parent,
+                widget_container,
                 from_=field.min_value if field.min_value is not None else 0.0,
                 to=field.max_value if field.max_value is not None else 1.0,
                 increment=0.01,
                 textvariable=var,
-                width=15,
+                width=18,
+                style="Modern.TSpinbox",
+                font=("Arial", 10),
             )
+            widget.pack(padx=8, pady=4)
+            
         elif field.field_type == "string":
             var = tk.StringVar(value=field.default_value)
-            widget = ttk.Entry(parent, textvariable=var, width=20)
+            widget = ttk.Entry(
+                widget_container, 
+                textvariable=var, 
+                width=25,
+                style="Modern.TEntry",
+                font=("Segoe UI", 10)
+            )
+            widget.pack(padx=8, pady=4)
+            
         else:
             raise ValueError(f"Tipo de campo desconhecido: {field.field_type}")
 
         self.config_vars[field.name] = var
-        return widget
+        return widget_container
 
     def create_action_buttons(self):
-        frame = ttk.Frame(self.scrollable_frame)
-        frame.pack(fill=tk.X, pady=20)
-        ttk.Button(frame, text="Salvar Configuração", command=self.save_current_profile).pack(side=tk.LEFT, padx=5)
-        ttk.Button(frame, text="Fechar", command=self.root.destroy).pack(side=tk.RIGHT, padx=5)
+        """Cria botões de ação com design moderno."""
+        # Frame para botões com fundo elegante e espaçamento melhorado
+        button_frame = tk.Frame(
+            self.scrollable_frame, 
+            bg=ModernTheme.BG_PRIMARY,
+            pady=25
+        )
+        button_frame.pack(fill="x", padx=25, pady=(35, 25))
+        
+        # Configurar grid para responsividade
+        button_frame.grid_columnconfigure(0, weight=1)
+        button_frame.grid_columnconfigure(1, weight=1)
+        button_frame.grid_columnconfigure(2, weight=1)
+        
+        # Container interno para centralizar botões
+        inner_frame = tk.Frame(button_frame, bg=ModernTheme.BG_PRIMARY)
+        inner_frame.grid(row=0, column=1, sticky="ew", padx=20)
+        
+        # Configurar grid do container interno
+        inner_frame.grid_columnconfigure(0, weight=1)
+        inner_frame.grid_columnconfigure(1, weight=1)
+        inner_frame.grid_columnconfigure(2, weight=1)
+        
+        # Botão Salvar
+        save_btn = ttk.Button(
+            inner_frame,
+            text="💾 Salvar Configurações",
+            command=self.save_current_profile,
+            style="Modern.TButton",
+            width=22
+        )
+        save_btn.grid(row=0, column=0, padx=(0, 10), pady=5, sticky="ew")
+        
+        # Botão Fechar
+        close_btn = ttk.Button(
+            inner_frame,
+            text="❌ Fechar",
+            command=self.root.destroy,
+            style="Modern.TButton",
+            width=22
+        )
+        close_btn.grid(row=0, column=2, padx=(10, 0), pady=5, sticky="ew")
+        
+        # Adicionar tooltips melhorados
+        ModernToolTip(save_btn, "Salva as configurações atuais no arquivo de configuração")
+        ModernToolTip(close_btn, "Fecha a janela de configurações")
 
     # --- Perfil e Configuração --------------------------------------------- #
     def load_current_config_from_defaults(self):

@@ -9,11 +9,11 @@ RIGHT_EYE_LANDMARKS_IDXS = [33, 160, 158, 133, 153, 144]
 REFINE_LANDMARKS = True
 
 # Limiares e Contadores para Detecção de Piscada
-EAR_THRESHOLD = 0.2
+EAR_THRESHOLD = 0.19
 BLINK_CONSECUTIVE_FRAMES = 1
 
 # Suavização do Movimento do Mouse
-SMOOTHING_FACTOR = 0.29
+SMOOTHING_FACTOR = 0.24
 
 # Área de Controle do Rosto (Mapeamento Câmera -> Tela)
 CONTROL_AREA_X_MIN = 0.3

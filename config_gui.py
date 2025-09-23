@@ -449,12 +449,17 @@ class ConfigGUI:
             raise
 
     def generate_config_content(self, config: Dict[str, Any]) -> str:
+        # Usar valores padrão para campos que não estão na interface
+        nose_tip_index = config.get("NOSE_TIP_INDEX", ConfigDefaults.get_default("NOSE_TIP_INDEX"))
+        left_eye_landmarks = config.get("LEFT_EYE_LANDMARKS_IDXS", ConfigDefaults.get_default("LEFT_EYE_LANDMARKS_IDXS"))
+        right_eye_landmarks = config.get("RIGHT_EYE_LANDMARKS_IDXS", ConfigDefaults.get_default("RIGHT_EYE_LANDMARKS_IDXS"))
+        
         return f'''# --- Constantes e Configurações ---
 
 # Índices dos landmarks faciais (Mediapipe Face Mesh)
-NOSE_TIP_INDEX = {config["NOSE_TIP_INDEX"]}
-LEFT_EYE_LANDMARKS_IDXS = {config["LEFT_EYE_LANDMARKS_IDXS"]}
-RIGHT_EYE_LANDMARKS_IDXS = {config["RIGHT_EYE_LANDMARKS_IDXS"]}
+NOSE_TIP_INDEX = {nose_tip_index}
+LEFT_EYE_LANDMARKS_IDXS = {left_eye_landmarks}
+RIGHT_EYE_LANDMARKS_IDXS = {right_eye_landmarks}
 
 # Qualidade vs Desempenho Mediapipe
 REFINE_LANDMARKS = {config["REFINE_LANDMARKS"]}

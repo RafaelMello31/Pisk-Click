@@ -163,7 +163,7 @@ class MouseController:
             if current_time - self.last_left_click_time > CLICK_DEBOUNCE_TIME:
                 try:
                     pyautogui.click(button="left")
-                    logger.warning("FailSafe ativado (mouse movido para o canto). Encerrando...")
+                    logger.info("Clique Esquerdo!")
                     self.last_left_click_time = current_time
                     return True
                 except Exception as e:
@@ -340,70 +340,61 @@ class Application:
         left_blink_detected_this_frame,
         right_blink_detected_this_frame,
     ):
-        """Atualiza a exibição de informações na tela."""
+        """Atualiza a exibição de informações na tela com interface melhorada."""
+        height, width = image.shape[:2]
+        
+        # Painel de informações superior
+        overlay = image.copy()
+        cv2.rectangle(overlay, (0, 0), (width, 150), (0, 0, 0), -1)
+        image = cv2.addWeighted(image, 0.7, overlay, 0.3, 0)
+        
+        # FPS
         new_frame_time = time.time()
         if self.prev_frame_time > 0:
             fps = 1 / (new_frame_time - self.prev_frame_time)
-            cv2.putText(
-                image,
-                f"FPS: {int(fps)}",
-                (10, 30),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                (0, 255, 0),
-                2,
-                cv2.LINE_AA,
-            )
+            cv2.putText(image, f"FPS: {int(fps)}", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         self.prev_frame_time = new_frame_time
 
-        cv2.putText(
-            image,
-            f"EAR Esq: {left_ear:.2f}",
-            (10, 60),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (255, 0, 0),
-            2,
-            cv2.LINE_AA,
-        )
-        cv2.putText(
-            image,
-            f"EAR Dir: {right_ear:.2f}",
-            (10, 90),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (255, 0, 0),
-            2,
-            cv2.LINE_AA,
-        )
-
+        # Título
+        cv2.putText(image, "PISCK & CLICK - CONTROLE ATIVO", (width//2 - 200, 30),
+                    cv2.FONT_HERSHEY_DUPLEX, 0.8, (0, 255, 255), 2)
+        
+        # Informações EAR com cores dinâmicas
+        left_ear_color = (0, 255, 0) if left_ear > EAR_THRESHOLD else (0, 0, 255)
+        right_ear_color = (0, 255, 0) if right_ear > EAR_THRESHOLD else (0, 0, 255)
+        
+        cv2.putText(image, f"EAR Esquerdo: {left_ear:.3f}", (10, 70),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, left_ear_color, 2)
+        cv2.putText(image, f"EAR Direito: {right_ear:.3f}", (10, 100),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, right_ear_color, 2)
+        
+        # Limiar EAR atual
+        cv2.putText(image, f"Limiar: {EAR_THRESHOLD:.3f}", (10, 130),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+        
+        # Contadores de piscada
+        cv2.putText(image, f"Contador Esq: {self.left_blink_counter}/{BLINK_CONSECUTIVE_FRAMES}", 
+                    (width//2 - 100, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        cv2.putText(image, f"Contador Dir: {self.right_blink_counter}/{BLINK_CONSECUTIVE_FRAMES}", 
+                    (width//2 - 100, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        
+        # Status de detecção
         if left_blink_detected_this_frame:
             self.left_blink_detected_visual = True
         if right_blink_detected_this_frame:
             self.right_blink_detected_visual = True
 
+        # Indicadores visuais de clique
         if self.left_blink_detected_visual:
-            cv2.putText(
-                image,
-                "CLIQUE ESQ",
-                (self.image_width - 200, 60),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                (0, 0, 255),
-                2,
-                cv2.LINE_AA,
-            )
+            cv2.putText(image, "CLIQUE ESQUERDO!", (width - 250, 70),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+            cv2.circle(image, (width - 50, 70), 20, (0, 255, 0), -1)
+            
         if self.right_blink_detected_visual:
-            cv2.putText(
-                image,
-                "CLIQUE DIR",
-                (self.image_width - 200, 90),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                (0, 0, 255),
-                2,
-                cv2.LINE_AA,
-            )
+            cv2.putText(image, "CLIQUE DIREITO!", (width - 250, 100),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.circle(image, (width - 50, 100), 20, (0, 0, 255), -1)
 
         if left_ear >= EAR_THRESHOLD:
             self.left_blink_detected_visual = False

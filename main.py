@@ -103,14 +103,37 @@ class FaceController:
                     for landmark in eye_landmarks
                 ]
             )
+            
+            # Verificar se temos exatamente 6 pontos
+            if len(coords_points) != 6:
+                logger.warning(f"Número incorreto de landmarks para EAR: {len(coords_points)}")
+                return 0.0
+                
             p1, p2, p3, p4, p5, p6 = coords_points
+            
+            # Calcular distâncias verticais e horizontal
             vertical_dist1 = self._calculate_distance(p2, p6)
             vertical_dist2 = self._calculate_distance(p3, p5)
             horizontal_dist = self._calculate_distance(p1, p4)
-            if horizontal_dist == 0:
+            
+            # Verificar divisão por zero com mais detalhes
+            if horizontal_dist == 0 or horizontal_dist < 0.001:
+                logger.warning(f"Distância horizontal inválida no cálculo EAR: {horizontal_dist}")
                 return 0.0
+                
+            # Calcular EAR
             ear = (vertical_dist1 + vertical_dist2) / (2.0 * horizontal_dist)
+            
+            # Verificar se o valor está em um range razoável
+            if ear < 0 or ear > 1 or not np.isfinite(ear):
+                logger.warning(f"Valor EAR inválido: {ear}")
+                return 0.0
+                
             return ear
+            
+        except ZeroDivisionError as e:
+            logger.error(f"Divisão por zero no cálculo EAR: {e}")
+            return 0.0
         except Exception as e:
             logger.error(f"Erro ao calcular EAR: {e}")
             return 0.0
@@ -155,6 +178,7 @@ class MouseController:
             return False
         except Exception:
             logger.warning("FailSafe ativado (mouse movido para o canto). Encerrando...")
+            return False
         return True
 
     def click(self, button_type, current_time):
@@ -181,13 +205,21 @@ class MouseController:
 
     def _map_value(self, value, from_min, from_max, to_min, to_max):
         """Mapeia um valor de um intervalo para outro, com clamping."""
-        value = max(min(value, from_max), from_min)
-        from_span = from_max - from_min
-        to_span = to_max - to_min
-        if from_span == 0:
+        try:
+            value = max(min(value, from_max), from_min)
+            from_span = from_max - from_min
+            to_span = to_max - to_min
+            
+            # Verificar divisão por zero
+            if from_span == 0:
+                logger.warning(f"Divisão por zero evitada em _map_value: from_min={from_min}, from_max={from_max}")
+                return to_min
+                
+            value_scaled = float(value - from_min) / float(from_span)
+            return to_min + (value_scaled * to_span)
+        except Exception as e:
+            logger.error(f"Erro em _map_value: {e}")
             return to_min
-        value_scaled = float(value - from_min) / float(from_span)
-        return to_min + (value_scaled * to_span)
 
 
 class Application:
@@ -270,6 +302,7 @@ class Application:
 
                         left_eye_landmarks = [face_landmarks[i] for i in LEFT_EYE_LANDMARKS_IDXS]
                         right_eye_landmarks = [face_landmarks[i] for i in RIGHT_EYE_LANDMARKS_IDXS]
+                        
                         left_ear = self.face_controller.calculate_ear(
                             left_eye_landmarks, (self.image_height, self.image_width)
                         )
@@ -327,8 +360,11 @@ class Application:
 
         except KeyboardInterrupt:
             logger.info("\nInterrupção pelo usuário (Ctrl+C).")
-        except Exception:
-            logger.info("\nInterrupção pelo usuário (Ctrl+C).")
+        except pyautogui.FailSafeException:
+            logger.info("\nFailSafe ativado - mouse movido para o canto da tela.")
+        except Exception as e:
+            logger.error(f"\nErro inesperado: {e}")
+            logger.info("Aplicação será encerrada devido ao erro.")
         finally:
             self.cleanup()
 
@@ -351,9 +387,14 @@ class Application:
         # FPS
         new_frame_time = time.time()
         if self.prev_frame_time > 0:
-            fps = 1 / (new_frame_time - self.prev_frame_time)
-            cv2.putText(image, f"FPS: {int(fps)}", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            time_diff = new_frame_time - self.prev_frame_time
+            if time_diff > 0:  # Evitar divisão por zero
+                fps = 1 / time_diff
+                cv2.putText(image, f"FPS: {int(fps)}", (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            else:
+                cv2.putText(image, "FPS: --", (10, 30),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         self.prev_frame_time = new_frame_time
 
         # Título

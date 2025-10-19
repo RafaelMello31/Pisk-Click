@@ -10,3 +10,20 @@ venv/
 __pycache__/
 *.pyc
 
+# Build e distribuição
+build/
+dist/
+
+# Artefatos de release (binaries)
+release/*.exe
+release/*.zip
+release/PisckClickPortable/
+release/setup_payload/
+
+# Manter scripts e docs de release
+!release/*.ps1
+!release/README.md
+!release/README.txt
+!release/Setup.cmd
+!release/*.sed
+

@@ -1,5 +1,12 @@
 # Pisk&Click
 
+## Distribuição (versão final 1.0.2)
+- Instalador: `release\PisckClick-Setup-1.0.2.exe` (recomendado)
+- Portátil: `release\PisckClickPortable-1.0.2.zip`
+- SHA-256 (instalador): `874C32275B3A5954C0FCC667D69816070C0B1AA0F765D8BF29B3C7113C124BFF`
+- Guia de instalação: veja `release/README.md`.
+- Download público: GitHub Releases `v1.0.2` — https://github.com/RafaelMello31/Pisck-Click/releases/tag/v1.0.2
+
 Pisk&Click é um sistema de acessibilidade que transforma movimentos faciais em comandos do mouse. A aplicação captura o rosto do usuário com a webcam, rastreia a ponta do nariz para mover o cursor e interpreta piscadas independentes para executar cliques esquerdo e direito. Dessa forma, pessoas com mobilidade reduzida podem interagir com o computador utilizando apenas gestos faciais.
 
 ## Objetivos do projeto

@@ -1,10 +1,10 @@
-# 🎯 Pisk & Click v2.0 - Controle Facial Moderno
+# 🎯 Pisk & Click v1.0 - Controle Facial Moderno
 
 > **Sistema avançado de controle de mouse e clique através de movimentos faciais e piscadas, desenvolvido para acessibilidade e inclusão digital.**
 
 ![Pisk & Click Logo](assets/logo.png)
 
-## ✨ Novidades da v2.0
+## ✨ Novidades da v1.0
 
 - 🎨 **Interface Moderna**: Design completamente renovado com logo de alta qualidade
 - 🧠 **Calibração Inteligente**: Sistema automático de ajuste de sensibilidade

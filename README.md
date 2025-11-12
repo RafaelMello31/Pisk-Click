@@ -180,10 +180,6 @@ Contribuições são muito bem-vindas!
 - Inclua informações do sistema e logs de erro
 - Descreva passos para reproduzir o problema
 
-## 📄 Licença
-
-Este projeto está licenciado sob a **Licença MIT** - veja [LICENSE](LICENSE) para detalhes.
-
 ## 🏆 Reconhecimentos
 
 - 🙏 **Google MediaPipe Team** - Biblioteca de detecção facial

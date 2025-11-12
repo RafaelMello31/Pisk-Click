@@ -1,0 +1,11 @@
+{
+    "created_date": "19/10/2025 15:02:23",
+    "last_modified": "19/10/2025 15:02:23",
+    "EAR_THRESHOLD": 0.28,
+    "BLINK_CONSECUTIVE_FRAMES": 5,
+    "SMOOTHING_FACTOR": 0.5,
+    "MOUSE_SENSITIVITY_MULTIPLIER": 0.8,
+    "CLICK_DEBOUNCE_TIME": 0.6,
+    "MOUSE_ACCELERATION": 0.7,
+    "description": "Perfil com baixa sensibilidade para iniciantes"
+}

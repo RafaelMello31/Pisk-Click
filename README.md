@@ -2,8 +2,6 @@
 
 > **Sistema avançado de controle de mouse e clique através de movimentos faciais e piscadas, desenvolvido para acessibilidade e inclusão digital.**
 
-![Pisk & Click Logo](assets/logo.png)
-
 ## ✨ Novidades da v1.0
 
 - 🎨 **Interface Moderna**: Design completamente renovado com logo de alta qualidade
@@ -17,7 +15,7 @@
 
 ### 📦 Instalador Automático (Recomendado)
 1. Compile o instalador usando **Inno Setup**:
-   - Abra `PiskAndClick_Installer_v2_Fixed.iss`
+   - Abra `PiskAndClick_Installer.iss`
    - Pressione **F9** para compilar
 2. Execute o instalador gerado como **administrador**
 3. Siga as instruções na tela

@@ -1,0 +1,11 @@
+{
+    "created_date": "19/10/2025 15:02:23",
+    "last_modified": "19/10/2025 15:02:23",
+    "EAR_THRESHOLD": 0.22,
+    "BLINK_CONSECUTIVE_FRAMES": 3,
+    "SMOOTHING_FACTOR": 0.2,
+    "MOUSE_SENSITIVITY_MULTIPLIER": 2.0,
+    "CLICK_DEBOUNCE_TIME": 0.3,
+    "MOUSE_ACCELERATION": 1.5,
+    "description": "Perfil com alta sensibilidade para usu\u00e1rios experientes"
+}

@@ -198,7 +198,7 @@ Contribuições são muito bem-vindas!
 
 <div align="center">
 
-**🎯 Desenvolvido com ❤️ para tornar a tecnologia mais acessível a todos**
+**🎯 Desenvolvido para tornar a tecnologia mais acessível a todos**
 
 ![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue?style=for-the-badge&logo=python)
 ![OpenCV](https://img.shields.io/badge/OpenCV-green?style=for-the-badge&logo=opencv)
